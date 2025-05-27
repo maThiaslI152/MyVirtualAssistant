@@ -6,6 +6,12 @@
 __pycache__/
 *.py[cod]
 *.so
+*.pyc
+*.pyo
+*.pyd
+*.rdb
+*.aof
+*.log
 
 # Virtual environment
 .venv/
