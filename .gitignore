@@ -1,0 +1,59 @@
+#database
+./chroma-data
+./redis-data
+
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+
+# PyCharm project files
+.idea/
+
+# VS Code (just in case)
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Test / coverage / logs
+*.log
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# MyPy, Pylint, etc.
+.mypy_cache/
+.pyre/
+
+# Build artifacts
+build/
+dist/
+*.egg
+*.manifest
+*.spec
+
+# Ignore environment variable files (be careful!)
+.env
+.env.*
+
+# Node stuff (if mixing with JS/Node)
+node_modules/
+
+# SQLite or local DB files
+*.sqlite3
+db.sqlite3
+
+# Other system files
+Thumbs.db
