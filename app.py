@@ -1,32 +1,47 @@
 import os
 import streamlit as st
 import torch
-from typing import TypedDict
 import time
+from typing import TypedDict
 
-# === Env Vars ===
+# === Env ===
 os.environ["LANGCHAIN_TRACING_V2"] = "false"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # === Imports ===
 from langchain_openai import ChatOpenAI
-from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_chroma import Chroma
-from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 from langchain.embeddings.base import Embeddings
 from langgraph.graph import StateGraph, END
-from langchain_core.messages import HumanMessage
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain.memory import ConversationBufferMemory
+from langchain_community.chat_message_histories import RedisChatMessageHistory
 
-# === Streamlit UI ===
+# === Streamlit Setup ===
 st.set_page_config(page_title="AI Assistant", layout="wide")
-st.title("📘 Personal AI Assistant")
 
 if st.sidebar.button("Check Apple MPS Support"):
     st.sidebar.write("MPS Available:", torch.backends.mps.is_available())
 
-# === Embedding Wrapper ===
+st.title("📘 Personal AI Assistant")
+
+# === Redis Setup ===
+SESSION_ID = "default-session"
+redis_url = "redis://localhost:6379"
+
+message_history = RedisChatMessageHistory(
+    session_id=SESSION_ID,
+    url=redis_url
+)
+
+memory = ConversationBufferMemory(
+    memory_key="chat_history",
+    return_messages=True,
+    chat_memory=message_history,
+)
+
+# === Embedder ===
 class MpsHuggingFaceEmbeddings(Embeddings):
     def __init__(self, model):
         self.model = model
@@ -37,7 +52,7 @@ class MpsHuggingFaceEmbeddings(Embeddings):
     def embed_query(self, text):
         return self.model.encode(text, convert_to_numpy=True).tolist()
 
-# === Chroma + Embedding Setup ===
+# === Vectorstore ===
 CHROMA_DIR = "./chroma-data"
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2", device="mps")
 embeddings = MpsHuggingFaceEmbeddings(model=embedding_model)
@@ -48,7 +63,7 @@ vectorstore = Chroma(
     embedding_function=embeddings
 )
 
-# === LLM Setup ===
+# === LLM ===
 llm = ChatOpenAI(
     model="deepseek-r1-distill-qwen-7b",
     base_url="http://localhost:1234/v1",
@@ -58,79 +73,94 @@ llm = ChatOpenAI(
     verbose=True,
 )
 
-# === Optional Redis Memory (for future extension) ===
-message_history = RedisChatMessageHistory(
-    session_id="default",
-    url="redis://localhost:6379",
-)
-
-# === LangGraph State ===
+# === LangGraph ===
 class GraphState(TypedDict):
     input: str
     answer: str
     elapsed_ms: float
 
-# === LangGraph Node with Caching ===
 def rag_node(state: GraphState) -> GraphState:
     user_input = state["input"].strip()
-    start_time = time.time()
+    start = time.time()
 
-    # Step 1: Check for cached answer
+    # Cache check
     cached = vectorstore.similarity_search(user_input, k=1)
     if cached:
         cached_doc = cached[0].page_content
         if "Q:" in cached_doc and user_input.lower() in cached_doc.lower():
             answer_start = cached_doc.find("A:")
             cached_answer = cached_doc[answer_start + 2:].strip() if answer_start != -1 else cached_doc
-            duration = round((time.time() - start_time) * 1000, 2)
+            elapsed = round((time.time() - start) * 1000, 2)
             return {
                 "input": user_input,
                 "answer": f"(cached) {cached_answer}",
-                "elapsed_ms": duration
+                "elapsed_ms": elapsed
             }
 
-    # Step 2: Do retrieval + generate answer
+    # RAG flow
     docs = vectorstore.similarity_search(user_input, k=3)
     context = "\n\n".join(doc.page_content for doc in docs)
-
     prompt = [
         HumanMessage(content=f"Context:\n{context}"),
         HumanMessage(content=user_input)
     ]
     response = llm.invoke(prompt)
 
-    # Step 3: Save Q&A to Chroma with ID (auto-persistent)
-    vectorstore.add_texts(
-        texts=[f"Q: {user_input}\nA: {response.content}"],
-        ids=[f"cache-{hash(user_input)}"]
-    )
+    # Save to cache
+    vectorstore.add_texts([f"Q: {user_input}\nA: {response.content}"])
 
-    duration = round((time.time() - start_time) * 1000, 2)
+    # Save to Redis
+    message_history.add_user_message(user_input)
+    message_history.add_ai_message(response.content)
+
+    elapsed = round((time.time() - start) * 1000, 2)
     return {
         "input": user_input,
         "answer": response.content,
-        "elapsed_ms": duration
+        "elapsed_ms": elapsed
     }
 
-# === LangGraph Workflow ===
 workflow = StateGraph(GraphState)
 workflow.add_node("rag", rag_node)
 workflow.set_entry_point("rag")
 workflow.add_edge("rag", END)
 rag_graph = workflow.compile()
 
-# === Streamlit Input ===
-user_input = st.text_area("Ask something:")
-if st.button("Run Assistant") and user_input:
-    result = rag_graph.invoke({"input": user_input})
-    st.subheader("📄 Answer")
+# === Streamlit Chat UI ===
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
-    answer_text = result["answer"].replace("(cached)", "").strip()
-    elapsed = result.get("elapsed_ms", None)
+# Load Redis memory into UI (on first launch)
+if not st.session_state.chat_history:
+    for msg in message_history.messages:
+        if isinstance(msg, HumanMessage):
+            st.session_state.chat_history.append({"role": "user", "content": msg.content})
+        elif isinstance(msg, AIMessage):
+            st.session_state.chat_history.append({"role": "assistant", "content": msg.content})
 
-    if result["answer"].startswith("(cached)"):
-        st.markdown(f"🧠 **Cached answer** — answered in `{elapsed} ms`")
+# Show previous messages
+for msg in st.session_state.chat_history:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# Input
+user_prompt = st.chat_input("Ask something...")
+if user_prompt:
+    st.session_state.chat_history.append({"role": "user", "content": user_prompt})
+    with st.chat_message("user"):
+        st.markdown(user_prompt)
+
+    result = rag_graph.invoke({"input": user_prompt})
+    answer = result["answer"]
+    elapsed = result["elapsed_ms"]
+
+    if answer.startswith("(cached)"):
+        label = f"🧠 *Cached* — `{elapsed}ms`"
+        answer = answer.replace("(cached)", "").strip()
     else:
-        st.markdown(f"✨ **LLM-generated answer** — completed in `{elapsed} ms`")
+        label = f"✨ *Generated* — `{elapsed}ms`"
 
-    st.write(answer_text)
+    st.session_state.chat_history.append({"role": "assistant", "content": answer})
+    with st.chat_message("assistant"):
+        st.markdown(answer)
+        st.caption(label)
