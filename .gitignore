@@ -1,6 +1,8 @@
 #database
-./chroma-data
-./redis-data
+chroma-data/
+redis-data/
+
+*.bin
 
 # Byte-compiled / cache files
 __pycache__/
@@ -30,7 +32,6 @@ ENV/
 .DS_Store
 
 # Test / coverage / logs
-*.log
 .coverage
 htmlcov/
 .tox/
