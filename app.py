@@ -114,6 +114,7 @@ vectorstore = Chroma(
     persist_directory="./chroma-data",
     embedding_function=embeddings,
 )
+st.session_state.vectorstore = vectorstore
 
 # === LLM ===
 llm = ChatOpenAI(
@@ -168,6 +169,28 @@ user_input = st.chat_input("Ask something:")
 if user_input:
     st.chat_message("user").write(user_input)
 
+    # === Detect filename and summarize ===
+    library_files = os.listdir("./library_files")
+    for fname in library_files:
+        if fname.lower() in user_input.lower():
+            path = os.path.join("./library_files", fname)
+            ext = fname.split('.')[-1].lower()
+
+            if ext == "pdf":
+                loader = PyPDFLoader(path)
+            elif ext == "docx":
+                loader = Docx2txtLoader(path)
+            else:
+                loader = TextLoader(path, encoding="utf-8")
+
+            docs = loader.load()
+            text = "\n".join([doc.page_content for doc in docs])
+            response = llm.invoke(f"Summarize this document:\n{text}").content
+            st.chat_message("ai").write(response)
+            message_history.add_user_message(user_input)
+            message_history.add_ai_message(response)
+            st.stop()
+
     # === Cache Check ===
     cached = None
     try:
@@ -204,8 +227,8 @@ if user_input:
         start_time = time.time()
         source_label = "RAG + LLM"
 
-        summaries = vectorstore.similarity_search("session summary", k=1, filter={"session_id": SESSION_ID})
-        summary_text = summaries[0].page_content + "\n\n" if summaries else ""
+        retrieved_docs = vectorstore.similarity_search(user_input, k=3)
+        summary_text = "\n\n".join([doc.page_content for doc in retrieved_docs]) + "\n\n"
         past_turns = "\n".join([m.content for m in message_history.messages])
         profile_intro = json.dumps(profile_data, indent=2) if profile_data else ""
         full_prompt = profile_intro + "\n\n" + summary_text + past_turns + f"\nUser: {user_input}"
@@ -234,3 +257,70 @@ if user_input:
                 "elapsed": elapsed,
                 "embedding": embedding_vec
             }) + "\n")
+
+# === File Upload and Embedding ===
+uploaded_file = st.file_uploader("Upload a document for RAG (PDF, DOCX, or TXT)", type=["pdf", "docx", "txt"])
+
+if uploaded_file:
+    from langchain.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
+    from langchain.text_splitter import RecursiveCharacterTextSplitter
+    import tempfile
+
+    ext = uploaded_file.name.split('.')[-1].lower()
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.' + ext) as tmp_file:
+        tmp_file.write(uploaded_file.read())
+        tmp_file_path = tmp_file.name
+
+    if ext == "pdf":
+        loader = PyPDFLoader(tmp_file_path)
+    elif ext == "docx":
+        loader = Docx2txtLoader(tmp_file_path)
+    else:
+        loader = TextLoader(tmp_file_path, encoding='utf-8')
+
+    documents = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    docs = text_splitter.split_documents(documents)
+
+    # Embed and add to vectorstore
+    st.session_state.vectorstore.add_documents(docs)
+    st.success("✅ File embedded and added to ChromaDB.")
+
+
+
+
+# === File Library Viewer ===
+if st.sidebar.button("📁 File Library"):
+    st.session_state.view_file_library = True
+
+if st.session_state.get("view_file_library"):
+    st.title("📁 File Library")
+    library_dir = "./library_files"
+    os.makedirs(library_dir, exist_ok=True)
+    files = os.listdir(library_dir)
+
+    for fname in files:
+        st.markdown(f"### 📄 {fname}")
+        if st.button(f"Summarize {fname}", key=f"sum_{fname}"):
+            from langchain.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
+            from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+            path = os.path.join(library_dir, fname)
+            ext = fname.split('.')[-1].lower()
+
+            if ext == "pdf":
+                loader = PyPDFLoader(path)
+            elif ext == "docx":
+                loader = Docx2txtLoader(path)
+            else:
+                loader = TextLoader(path, encoding="utf-8")
+
+            docs = loader.load()
+            text = "\n".join([doc.page_content for doc in docs])
+            summary = llm.invoke(f"Summarize this document:\n{text}").content
+            st.markdown("#### 📌 Summary")
+            st.markdown(summary)
+
+            if st.checkbox("Preview content", key=f"preview_{fname}"):
+                st.markdown("#### 📖 Full Content")
+                st.markdown(text[:3000])

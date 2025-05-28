@@ -1,6 +1,7 @@
 #database
 chroma-data/
 redis-data/
+*.jsonl
 
 *.bin
 
