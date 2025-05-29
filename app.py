@@ -77,7 +77,7 @@ if st.sidebar.button("🧹 Clear Short-Term Memory"):
 
 if st.sidebar.button("🗑️ Clear Vector Logs"):
     try:
-        with open("vector_log.jsonl", "w", encoding="utf-8") as f:
+        with open("models/vector_log.jsonl", "w", encoding="utf-8") as f:
             f.write("")
         st.sidebar.success("Vector logs cleared.")
     except Exception as e:
@@ -86,7 +86,7 @@ if st.sidebar.button("🗑️ Clear Vector Logs"):
 if st.sidebar.checkbox("Show Vector Logs"):
     st.sidebar.markdown("### Vector Search Logs")
     try:
-        with open("vector_log.jsonl", "r", encoding="utf-8") as f:
+        with open("models/vector_log.jsonl", "r", encoding="utf-8") as f:
             logs = [json.loads(line) for line in f.readlines()[-10:]]
         for log in logs:
             st.sidebar.markdown(f"**Query:** {log['query']}")
@@ -116,7 +116,7 @@ vectorstore = Chroma(
 )
 st.session_state.vectorstore = vectorstore
 
-# === LLM ===
+# === Owlin ===
 llm = ChatOpenAI(
     model="deepseek-r1-distill-qwen-7b",
     base_url="http://localhost:1234/v1",
@@ -172,7 +172,7 @@ if user_input:
     # === Cache Check ===
     cached = None
     try:
-        with open("vector_log.jsonl", "r", encoding="utf-8") as f:
+        with open("models/vector_log.jsonl", "r", encoding="utf-8") as f:
             logs = [json.loads(line) for line in f]
             user_input_clean = user_input.strip().lower()
 
@@ -203,7 +203,7 @@ if user_input:
         st.stop()
     else:
         start_time = time.time()
-        source_label = "RAG + LLM"
+        source_label = "RAG + Owlin"
 
         retrieved_docs = vectorstore.similarity_search(user_input, k=3)
         summary_text = "\n\n".join([doc.page_content for doc in retrieved_docs]) + "\n\n"
@@ -225,7 +225,7 @@ if user_input:
         message_history.add_user_message(user_input)
         message_history.add_ai_message(response)
 
-        with open("vector_log.jsonl", "a", encoding="utf-8") as f:
+        with open("models/vector_log.jsonl", "a", encoding="utf-8") as f:
             embedding_vec = embeddings.embed_query(user_input)
             f.write(json.dumps({
                 "query": user_input,

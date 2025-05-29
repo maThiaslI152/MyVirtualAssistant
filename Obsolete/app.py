@@ -116,7 +116,7 @@ vectorstore = Chroma(
 )
 st.session_state.vectorstore = vectorstore
 
-# === LLM ===
+# === Owlin ===
 llm = ChatOpenAI(
     model="deepseek-r1-distill-qwen-7b",
     base_url="http://localhost:1234/v1",
@@ -225,7 +225,7 @@ if user_input:
         st.stop()
     else:
         start_time = time.time()
-        source_label = "RAG + LLM"
+        source_label = "RAG + Owlin"
 
         retrieved_docs = vectorstore.similarity_search(user_input, k=3)
         summary_text = "\n\n".join([doc.page_content for doc in retrieved_docs]) + "\n\n"
