@@ -1,10 +1,10 @@
 #database
 chroma-data/
 redis-data/
+*.gguf
 *.jsonl
 
 *.bin
-
 # Byte-compiled / cache files
 __pycache__/
 *.py[cod]
