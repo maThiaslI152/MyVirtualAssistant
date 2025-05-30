@@ -1,4 +1,5 @@
 services:
+
   postgres:
     image: postgres:15
     container_name: postgres
@@ -30,20 +31,6 @@ services:
       - ANONYMIZED_TELEMETRY=FALSE
     volumes:
       - chroma-data:/chroma/chroma
-
-  llm:
-    platform: linux/arm64/v8  # Force Apple ARM arch for Metal/MPS
-    build:
-      context: .
-      dockerfile: models/Dockerfile
-    container_name: llm
-    volumes:
-      - .:/app
-    environment:
-      - MODEL_PATH=models/Qwen3-14B-Q4_K_M.gguf
-    ports:
-      - "8500:8500"  # expose FastAPI server
-    command: uvicorn api.llm_api:app --host 0.0.0.0 --port 8500
 
 volumes:
   postgres-data:
