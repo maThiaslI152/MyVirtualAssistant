@@ -65,3 +65,45 @@ db.sqlite3
 
 # Other system files
 Thumbs.db
+
+# Node dependencies
+node_modules/
+
+# Build output
+dist/
+www/
+
+# Capacitor (native builds)
+android/
+ios/
+plugins/
+capacitor.config.json
+
+# Environment files
+.env
+.env.*.local
+
+# Editor settings
+.vscode/
+.idea/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cypress test artifacts
+cypress/screenshots/
+cypress/videos/
+
+# Optional: lock files if you only use one package manager
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+
