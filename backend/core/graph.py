@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.redis import RedisCheckpoint
+from langgraph.checkpoint.redis import RedisSaver
 from typing import TypedDict
 from services.chat import ask_llm
 
@@ -16,8 +16,8 @@ def llm_step(state: ChatState) -> ChatState:
     response = ask_llm(query, history)
     return {"query": query, "response": response, "history": history + [query, response]}
 
-# Optional: Attach RedisCheckpoint (requires Redis running)
-# checkpoint = RedisCheckpoint.from_url("redis://localhost:6379")
+# Optional: Attach RedisSaver (requires Redis running)
+# checkpoint = RedisSaver(redis_url="redis://localhost:6379")
 # graph = StateGraph(ChatState, checkpoint=checkpoint)
 
 # If no checkpointing needed:
