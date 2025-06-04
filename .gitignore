@@ -3,7 +3,6 @@ chroma-data/
 redis-data/
 *.gguf
 *.jsonl
-*.gguf
 *.bin
 # Byte-compiled / cache files
 __pycache__/
@@ -66,11 +65,8 @@ db.sqlite3
 # Other system files
 Thumbs.db
 
-# Node dependencies
-node_modules/
 
 # Build output
-dist/
 www/
 
 # Capacitor (native builds)
@@ -80,16 +76,7 @@ plugins/
 capacitor.config.json
 
 # Environment files
-.env
 .env.*.local
-
-# Editor settings
-.vscode/
-.idea/
-
-# OS-generated files
-.DS_Store
-Thumbs.db
 
 # Logs
 npm-debug.log*
