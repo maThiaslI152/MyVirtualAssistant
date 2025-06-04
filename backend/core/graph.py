@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.redis import RedisCheckpoint
 from typing import TypedDict
-from services.ask import ask_llm  # adjust to your file structure
+from services.chat import ask_llm
 
 # Define the shape of the state
 class ChatState(TypedDict):
