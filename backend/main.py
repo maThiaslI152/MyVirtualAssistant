@@ -1,7 +1,7 @@
 import asyncio
 from fastapi import FastAPI
 from api.routes import router
-from memory import redis_expiry_listener
+from vectorstore.memory import redis_expiry_listener
 
 #setup FastAPI
 app = FastAPI(title="Owlynn AI Assistant")

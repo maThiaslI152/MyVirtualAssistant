@@ -1,122 +1,185 @@
-Here’s a detailed and professional summary of your **Owlin** project suitable for `README.md`:
+# Owlynn AI Assistant
 
----
+## Overview
+Owlynn is a full-stack AI assistant project featuring a Next.js frontend and FastAPI backend with RAG (Retrieval-Augmented Generation) capabilities. The system integrates multiple AI technologies including ChromaDB for vector storage, sentence transformers for embeddings, and LLM integration for intelligent conversations.
 
-# 🦉 Owlin: Local AI Assistant for Smart Knowledge Management
+## Architecture
 
-**Owlin** is a local-first, privacy-focused AI assistant designed to help you think, learn, and organize. Inspired by tools like Notion and Obsidian, Owlin goes further by integrating **chat-based AI**, **file understanding**, **memory**, and **context branching** in one seamless app.
+### Backend (FastAPI)
+- **API Framework**: FastAPI with async/await support
+- **Vector Database**: ChromaDB for document embeddings and similarity search
+- **Embeddings**: HuggingFace Transformers with `intfloat/multilingual-e5-large` model
+- **LLM Integration**: Configured for streaming responses with `Qwen3-14b` model
+- **Caching**: Redis for performance optimization
+- **Database**: PostgreSQL for persistent storage
+- **GPU Support**: MPS (Metal Performance Shaders) acceleration on Apple Silicon
 
----
+### Frontend (Next.js)
+- **Framework**: Next.js with TypeScript
+- **UI Components**: Modern React components
+- **Real-time Communication**: Chat interface with streaming support
 
-## ✅ Current Features
+### Infrastructure
+- **Containerization**: Docker Compose for service orchestration
+- **Services**: Frontend, Backend, PostgreSQL, Redis, ChromaDB
+- **Development**: Local development with hot-reload support
 
-### 🧠 Chat Interface with Memory
+## Current Status
 
-* Streaming chat UI built with **Streamlit** (Vue.js version in progress).
-* Supports **contextual responses** using:
+### ✅ Completed Features
+- [x] Docker Compose setup for all services
+- [x] PostgreSQL database with initialization scripts
+- [x] Redis caching service
+- [x] ChromaDB vector database integration
+- [x] RAG search service with document processing
+- [x] Content processor with multiple NLP capabilities
+- [x] File processor supporting multiple formats (PDF, DOCX, TXT, etc.)
+- [x] MPS GPU acceleration for Apple Silicon
+- [x] Sentence transformers for multilingual embeddings
+- [x] Chat API with streaming support
+- [x] Frontend build system and Docker integration
 
-  * User profile
-  * Short-term memory (via **Redis**)
-  * Long-term memory (via **ChromaDB**)
-  * Session summaries and conversation pruning
-* Smart **prompt injection** using profile, memory, and history.
+### 🔧 In Progress
+- [ ] ChromaDB connection stabilization
+- [ ] Backend service health checks
+- [ ] LLM endpoint integration testing
+- [ ] Frontend-backend API integration
 
-### 📂 Multi-Type RAG System (Retrieval-Augmented Generation)
+## Quick Start
 
-* RAG across various file types:
+### Prerequisites
+- Docker and Docker Compose
+- Python 3.11+ (for local backend development)
+- Node.js 18+ (for local frontend development)
 
-  * 📄 Text: `.txt`, `.md`, etc.
-  * 📘 Documents: `.pdf`, `.docx`
-  * 📊 Tables: `.csv`, `.xlsx`
-  * 📷 Images: OCR and image captioning
-  * 🧠 Code: Uses separate embedding route
-* Smart routing to correct parser + embedding model.
+### Using Docker (Recommended)
+```bash
+# Clone the repository
+git clone <repository-url>
+cd Owlynn
 
-### 🔍 Search & Caching System
+# Start all services
+docker-compose up --build
 
-* Semantic + exact match **response cache**:
+# Services will be available at:
+# Frontend: http://localhost:3000
+# ChromaDB: http://localhost:8000
+# PostgreSQL: localhost:5432
+# Redis: localhost:6379
+```
 
-  * Avoid redundant LLM calls
-  * Faster and cheaper response reuse
-* Vector logs stored in `.jsonl` format.
+### Local Development
 
-### ⚙️ Modular Backend
+#### Backend Setup
+```bash
+cd backend
 
-* Built with **FastAPI**
-* Embedding powered by **HuggingFace** models:
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-  * `intfloat/multilingual-e5-large` (text)
-  * `Qodo-Embed-1-1.5B` (code)
-  * `jina-embeddings-v3` (optional backup)
-* Apple Silicon optimized using **Metal (MPS)** via `llama-cpp-python`.
+# Install dependencies
+pip install -r requirements.txt
 
----
+# Run the backend (on port 8001 to avoid ChromaDB conflict)
+uvicorn main:app --reload --port 8001
+```
 
-## 🛠️ In Progress
+#### Frontend Setup
+```bash
+cd frontend
 
-### 🌐 Frontend
+# Install dependencies
+npm install
 
-* Building clean and mobile-friendly interface with:
+# Build the application
+npm run build
 
-  * **Vue 3 + Ionic + TailwindCSS**
-  * Session-based branching UI like a **mind map**
-  * Smart document list + summary viewer
+# Start the frontend
+npm start
+```
 
-### 🧩 Modularization
+## Configuration
 
-* Breaking backend into clean components:
+### Environment Variables
+Create a `.env` file in the backend directory:
+```env
+OPENAI_API_KEY=your-openai-api-key-here
+REDIS_URL=redis://localhost:6379
+DATABASE_URL=postgresql://owlynn:owlynnpass@localhost:5432/owlynn
+```
 
-  * Embedding pipeline
-  * Memory manager
-  * Chat agent controller
-  * File manager
+### ChromaDB Settings
+The system is configured to use ChromaDB with:
+- REST API implementation
+- Persistent storage in Docker volumes
+- Multilingual embedding support
+- Document collection management
 
----
+## API Endpoints
 
-## 🚀 Planned Features
+### Core Endpoints
+- `GET /api/ping` - Health check
+- `POST /api/chat` - Chat with streaming support
+- `POST /api/rag/search` - RAG search functionality
+- `POST /api/rag/upload` - Document upload and processing
 
-### 🧠 Advanced Memory Architecture
+### RAG Features
+- Web search integration
+- Document similarity search
+- Content summarization
+- Entity extraction
+- Keyword extraction
+- Multi-format file support
 
-* Persistent **short-term memory** using Redis with token-based pruning + summarization
-* Topic-aware **long-term memory** stored in ChromaDB
-* Session-based **branching chat memory**, like a conversation tree
+## Development Notes
 
-### 📚 Smart Document Library
+### GPU Acceleration
+The system automatically detects and uses MPS (Metal Performance Shaders) on Apple Silicon Macs for faster model inference:
+```python
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+```
 
-* Sidebar interface to:
+### Dependencies Management
+Key dependencies include:
+- `fastapi`, `uvicorn` for API framework
+- `chromadb[httpx]` for vector database
+- `langchain-chroma`, `langchain-huggingface` for RAG
+- `sentence-transformers` for embeddings
+- `torch` with MPS support
+- `transformers` for AI models
 
-  * Upload + browse files
-  * Auto-summarize and preview contents
-  * Link file data to chat sessions via embedding
+### Docker Services
+- **PostgreSQL**: Database with custom initialization
+- **Redis**: Caching and session management
+- **ChromaDB**: Vector storage with REST API
+- **Frontend**: Next.js application
+- **Backend**: FastAPI application (run locally for development)
 
-### 🔌 Tool Integration
+## Troubleshooting
 
-* Web Search via plugin or headless browser
-* Calculator, file explorer, and shell tools (local-first agents)
-* Optional plugin execution system
+### Common Issues
+1. **Port Conflicts**: ChromaDB uses port 8000, run backend on 8001
+2. **ChromaDB Connection**: Ensure Docker container is healthy
+3. **GPU Memory**: MPS acceleration requires sufficient GPU memory
+4. **Dependencies**: Use `pip install "chromadb[httpx]"` with quotes
 
-### 🧾 Page Editing (Notion-like)
+### Health Checks
+Check service status:
+```bash
+docker ps  # View running containers
+docker logs owlynn-chroma  # Check ChromaDB logs
+docker logs owlynn-postgres  # Check database logs
+```
 
-* Rich text pages stored in SQLite
-* Markdown + block-level editing
-* Bi-directional linking and embedding
+## Contributing
 
-### 🔒 Privacy and Local Control
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-* Fully offline, with **no third-party API calls**
-* Compatible with Mac (Metal/MPS), Docker, and local GPU inference
+## License
 
----
-
-## 🧪 Setup Instructions (Coming Soon)
-
-Instructions to run with:
-
-* Docker (for Redis + ChromaDB)
-* Python (venv, FastAPI backend)
-* Local inference using `llama-cpp-python`
-* Vue 3 frontend (Ionic + Tailwind setup)
-
----
-
-Let me know if you want this broken into actual Markdown file format, or if you want icons and badges added.
+[Add your license information here]

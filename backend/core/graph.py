@@ -1,30 +1,64 @@
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.redis import AsyncRedisSaver
-from typing import TypedDict
-from services.chat import ask_llm
+from typing import TypedDict, List, Dict, Any
+from .models.chat_model import ChatState, Message
+from .controllers.chat_controller import ChatController
+from .presenters.chat_presenter import ChatPresenter
+from .services.redis_service import RedisService
 
-# Define the shape of the state
-class ChatState(TypedDict):
-    query: str
-    history: list[str]
-    response: str
+class GraphState(TypedDict):
+    chat_state: ChatState
+    controller: ChatController
+    presenter: ChatPresenter
 
-# LangGraph step
-def llm_step(state: ChatState) -> ChatState:
-    query = state["query"]
-    history = state.get("history", [])
-    response = ask_llm(query, history)
-    return {"query": query, "response": response, "history": history + [query, response]}
+async def process_message(state: GraphState) -> GraphState:
+    """Process a message through the chat controller."""
+    controller = state["controller"]
+    chat_state = state["chat_state"]
+    
+    # Process the message
+    updated_chat_state = await controller.process_message(chat_state)
+    
+    return {
+        "chat_state": updated_chat_state,
+        "controller": controller,
+        "presenter": state["presenter"]
+    }
 
-# Set up AsyncRedisSaver (ensure Redis is running and accessible from this container)
-checkpointer = AsyncRedisSaver.from_conn_string("redis://redis:6379")
+def create_chat_graph(
+    controller: ChatController,
+    presenter: ChatPresenter,
+    redis_service: RedisService
+) -> StateGraph:
+    """Create and configure the LangGraph for chat processing."""
+    
+    # Get Redis checkpointer
+    checkpointer = redis_service.get_checkpointer()
+    
+    # Create the graph
+    graph = StateGraph(GraphState, checkpointer=checkpointer)
+    
+    # Add nodes
+    graph.add_node("process_message", process_message)
+    
+    # Set entry and exit points
+    graph.set_entry_point("process_message")
+    graph.set_finish_point("process_message")
+    
+    # Compile the graph
+    return graph.compile()
 
-# Create graph with async checkpointing
-graph = StateGraph(ChatState, checkpointer=checkpointer)
-
-graph.set_entry_point("start")
-graph.add_node("start", llm_step)
-graph.set_finish_point("start")  # You can also use END
-
-# Compile the graph
-chat_graph = graph.compile()
+def initialize_graph_state(
+    controller: ChatController,
+    presenter: ChatPresenter,
+    initial_message: Message
+) -> GraphState:
+    """Initialize the graph state with required components."""
+    return {
+        "chat_state": {
+            "messages": [initial_message],
+            "context": {},
+            "metadata": {}
+        },
+        "controller": controller,
+        "presenter": presenter
+    }

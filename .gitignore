@@ -1,96 +1,129 @@
-#database
+# Owlynn Project Specific
+## Database & Storage
 chroma-data/
 redis-data/
+vectorstore/
 *.gguf
 *.jsonl
 *.bin
-# Byte-compiled / cache files
-__pycache__/
-*.py[cod]
-*.so
-*.pyc
-*.pyo
-*.pyd
 *.rdb
 *.aof
-*.log
+*.sqlite3
+*.db
+*.sqlite
+dump.rdb
 
-# Virtual environment
+## Project Directories
+uploads/
+temp/
+static/
+templates/
+email_templates/
+www/
+android/
+ios/
+plugins/
+
+## Python
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.pyo
+*.pyc
+
+# Distribution / packaging
+build/
+dist/
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+.installed.cfg
+
+# Virtual Environment
 .venv/
 venv/
 env/
 ENV/
-*.egg-info/
 
-# PyCharm project files
-.idea/
-
-# VS Code (just in case)
-.vscode/
-
-# MacOS
-.DS_Store
-
-# Test / coverage / logs
+# Testing
 .coverage
 htmlcov/
 .tox/
+.nox/
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
 .pytest_cache/
+test_*.py
+*_test.py
+*_tests.py
+cypress/screenshots/
+cypress/videos/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# MyPy, Pylint, etc.
-.mypy_cache/
-.pyre/
-
-# Build artifacts
-build/
-dist/
-*.egg
-*.manifest
-*.spec
-
-# Ignore environment variable files (be careful!)
-.env
-.env.*
-
-# Node stuff (if mixing with JS/Node)
-node_modules/
-
-# SQLite or local DB files
-*.sqlite3
-db.sqlite3
-
-# Other system files
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
 Thumbs.db
 
-
-# Build output
-www/
-
-# Capacitor (native builds)
-android/
-ios/
-plugins/
-capacitor.config.json
-
-# Environment files
-.env.*.local
-
-# Logs
+# Node.js
+node_modules/
+.pnp/
+.pnp.js
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Cypress test artifacts
-cypress/screenshots/
-cypress/videos/
+# Build & Production
+build/
+dist/
+out/
+capacitor.config.json
 
-# Optional: lock files if you only use one package manager
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
+# Environment & Configuration
+.env
+.env.*
+!.env.example
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+uploadtest.txt
 
 
