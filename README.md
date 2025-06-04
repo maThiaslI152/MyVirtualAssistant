@@ -112,6 +112,13 @@ Here’s a detailed and professional summary of your **Owlin** project suitable 
 
 Instructions to run with:
 
+* Install Python dependencies:
+  ```bash
+  pip install -r backend/requirements.txt
+  ```
+  This includes the `langgraph-checkpoint-redis` package required for
+  Redis-based checkpointing.
+
 * Docker (for Redis + ChromaDB)
 * Python (venv, FastAPI backend)
 * Local inference using `llama-cpp-python`

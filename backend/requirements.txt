@@ -69,6 +69,7 @@ langchain-redis==0.2.1
 langchain-text-splitters==0.3.8
 langgraph==0.4.7
 langgraph-checkpoint==2.0.26
+langgraph-checkpoint-redis==0.0.6
 langgraph-prebuilt==0.2.2
 langgraph-sdk==0.1.70
 langsmith==0.3.43
