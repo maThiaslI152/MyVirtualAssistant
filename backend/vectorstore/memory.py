@@ -119,4 +119,4 @@ async def handle_expired_session(session_id: str):
     except SQLAlchemyError as e:
         print(f"[DB Error] Failed to archive {session_id}: {e}")
     except Exception as e:
-        print(f"[Error] Session {session_id} archiving failed: {e}"
+        print(f"[Error] Session {session_id} archiving failed: {e}")
