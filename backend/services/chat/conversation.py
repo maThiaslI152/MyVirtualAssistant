@@ -5,7 +5,7 @@ from typing import Dict, Any, Optional
 
 from sqlalchemy import create_engine, Column, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship, Session
-import aioredis
+from redis import asyncio as aioredis
 
 # Dummy fallback in-memory store
 _conversations = {}

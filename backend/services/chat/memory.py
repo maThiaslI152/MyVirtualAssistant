@@ -5,7 +5,7 @@ import asyncio
 from sqlalchemy import create_engine, Column, String, DateTime, Text, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-import aioredis
+import redis.asyncio as aioredis
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document

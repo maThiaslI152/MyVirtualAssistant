@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, HttpUrl
-from backend.services.search.web import WebSearchService
-from backend.services.rag.search import RAGSearchService
-from backend.services.rag.cache import CacheService
-from backend.services.rag.processor import ContentProcessor
-from backend.services.search.history import SearchHistoryService
+from services.search.web import WebSearchService
+from services.rag.search import RAGSearchService
+from services.rag.cache import CacheService
+from services.rag.processor import ContentProcessor
+from services.search.history import SearchHistoryService
 from vectorstore.db import get_vector_store
 from config import settings
-from backend.services.processing.file import FileProcessorService
+from services.processing.file import FileProcessorService
 import logging
 import os
 from pathlib import Path
@@ -141,17 +141,13 @@ async def rag_search(request: RAGSearchRequest, background_tasks: BackgroundTask
         
         # Get recommendations if requested
         recommendations = None
-        if request.get_recommendations and request.user_id:
-            recommendations = await search_history_service.get_recommendations(request.user_id)
+        if request.get_recommendations:
+            recommendations = await rag_service.get_recommendations(request.query)
         
         return {
-            'results': results['web_results'],
-            'summary': results.get('summary'),
-            'entities': results.get('entities'),
-            'keywords': results.get('keywords'),
-            'search_history': search_history,
-            'recommendations': recommendations,
-            'summary_metadata': results.get('summary_metadata')
+            "results": results,
+            "history": search_history,
+            "recommendations": recommendations
         }
     except Exception as e:
         logger.error(f"Error in RAG search: {str(e)}")

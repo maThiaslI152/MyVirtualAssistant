@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import base64
 from io import BytesIO
-from backend.services.processing.image import ImageProcessor
+from services.processing.image import ImageProcessor
 import logging
 
 router = APIRouter()

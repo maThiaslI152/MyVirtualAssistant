@@ -12,7 +12,6 @@ services:
     environment:
       - NODE_ENV=development
     depends_on:
-      - backend
       - postgres
       - redis
       - chroma
