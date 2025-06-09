@@ -183,3 +183,85 @@ docker logs owlynn-postgres  # Check database logs
 ## License
 
 [Add your license information here]
+
+## Project Structure
+
+```
+Owlynn/
+├── backend/                      # Backend application
+│   ├── api/                     # API endpoints and routes
+│   │   ├── rag.py              # RAG-specific endpoints
+│   │   ├── conversation.py     # Conversation endpoints
+│   │   └── ...
+│   ├── core/                    # Core application components
+│   │   ├── models/             # Data models
+│   │   ├── schemas/            # Pydantic schemas
+│   │   └── config/             # Configuration
+│   ├── services/               # Business logic services
+│   │   ├── rag/               # RAG-related services
+│   │   │   ├── search.py      # RAG search service
+│   │   │   ├── processor.py   # Content processor
+│   │   │   └── cache.py       # Cache service
+│   │   ├── chat/              # Chat-related services
+│   │   │   ├── conversation.py # Conversation service
+│   │   │   ├── memory.py      # Memory service
+│   │   │   └── enhancer.py    # Chat enhancer
+│   │   ├── processing/        # Content processing services
+│   │   │   ├── file.py        # File processor
+│   │   │   ├── image.py       # Image processor
+│   │   │   └── code.py        # Code processor
+│   │   └── search/            # Search-related services
+│   │       ├── web.py         # Web search service
+│   │       └── history.py     # Search history service
+│   ├── db/                     # Database related code
+│   │   ├── migrations/        # Database migrations
+│   │   └── models/            # Database models
+│   ├── vectorstore/           # Vector store implementation
+│   ├── utils/                 # Utility functions
+│   └── tests/                 # Backend tests
+├── frontend/                   # Frontend application
+│   ├── src/
+│   │   ├── components/        # React components
+│   │   ├── pages/            # Page components
+│   │   ├── services/         # Frontend services
+│   │   └── utils/            # Frontend utilities
+│   └── public/               # Static assets
+├── docs/                      # Documentation
+│   ├── api/                  # API documentation
+│   ├── setup/               # Setup guides
+│   └── architecture/        # Architecture docs
+├── data/                     # Data storage
+│   ├── uploads/             # Uploaded files
+│   └── chroma/              # ChromaDB data
+├── scripts/                  # Utility scripts
+├── docker/                   # Docker configuration
+│   ├── backend/             # Backend Dockerfile
+│   └── frontend/            # Frontend Dockerfile
+├── docker-compose.yml        # Docker compose configuration
+├── requirements.txt          # Python dependencies
+└── README.md                # Project documentation
+```
+
+# Project Name
+
+## Overview
+This project is a FastAPI application that integrates with ChromaDB for data storage and retrieval. It also includes a frontend for user interaction.
+
+## Setup
+1. **Clone the Repository**: Clone the repository to your local machine.
+2. **Install Dependencies**: Navigate to the project directory and install the required dependencies using `pip install -r requirements.txt`.
+3. **Run the Application**: Use the command `uvicorn backend.main:app --reload --host 0.0.0.0 --port 8001` to start the FastAPI application.
+
+## Dependencies
+- FastAPI
+- Uvicorn
+- ChromaDB
+- Newspaper3k
+- Other dependencies listed in `requirements.txt`
+
+## Running the Application
+- **Backend**: Start the FastAPI application using the command provided in the setup section.
+- **Frontend**: Ensure the frontend is configured to communicate with the backend API.
+
+## Testing
+- Use the Swagger UI at `http://localhost:8001/docs` to test the API endpoints.

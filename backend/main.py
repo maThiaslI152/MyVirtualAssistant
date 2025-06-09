@@ -1,6 +1,6 @@
 import asyncio
 from fastapi import FastAPI
-from api.routes import router
+from backend.api.routes import router
 from vectorstore.memory import redis_expiry_listener
 
 #setup FastAPI

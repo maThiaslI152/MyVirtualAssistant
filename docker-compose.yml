@@ -1,6 +1,5 @@
-version: '3.8'
-
 services:
+
   frontend:
     build:
       context: ./frontend
@@ -13,10 +12,12 @@ services:
     environment:
       - NODE_ENV=development
     depends_on:
-      # - backend
+      - backend
       - postgres
       - redis
       - chroma
+    networks:
+      - owlynn-net
 
   postgres:
     image: postgres:15
@@ -62,17 +63,10 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - chroma_data:/data
+      - chroma_data:/chroma/chroma
     environment:
       - ALLOW_RESET=true
       - ANONYMIZED_TELEMETRY=false
-      - CHROMA_SERVER_HOST=0.0.0.0
-      - CHROMA_SERVER_HTTP_PORT=8000
-      - CHROMA_SERVER_CORS_ALLOW_ORIGINS=["*"]
-      - CHROMA_SERVER_AUTH_CREDENTIALS_FILE=/data/auth.json
-      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=token
-      - CHROMA_API_IMPL=rest
-      - CHROMA_SERVER_PERSIST_DIRECTORY=/data
     networks:
       - owlynn-net
     healthcheck:
@@ -80,7 +74,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
 
 volumes:
   postgres_data:

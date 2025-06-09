@@ -138,7 +138,7 @@ class Settings(BaseSettings):
     LOG_FORMAT_JSON: bool = False
     
     # Vector Store Settings
-    VECTOR_STORE_TYPE: str = "chroma"  # or "chroma"
+    VECTOR_STORE_TYPE: str = "chroma"
     VECTOR_DIMENSION: int = 1536
     VECTOR_METRIC: str = "cosine"
     VECTOR_INDEX_PATH: Path = BASE_DIR / "vectorstore" / "index"
@@ -146,6 +146,12 @@ class Settings(BaseSettings):
     VECTOR_UPDATE_INTERVAL: int = 3600  # 1 hour
     VECTOR_CACHE_SIZE: int = 1000
     VECTOR_SEARCH_K: int = 5
+    
+    # ChromaDB Settings
+    CHROMA_HOST: str = "localhost"
+    CHROMA_PORT: int = 8000
+    CHROMA_COLLECTION_NAME: str = "documents"
+    CHROMA_PERSIST_DIRECTORY: Optional[str] = None
     
     # Rate Limiting
     RATE_LIMIT_ENABLED: bool = True

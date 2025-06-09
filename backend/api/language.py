@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
-from ..services.language_processor import LanguageProcessor
+from backend.services.processing.language import LanguageProcessor
 
 router = APIRouter()
 language_processor = LanguageProcessor()

@@ -1,8 +1,8 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from ..models.chat_model import ChatState, Message, ChatResponse
-from ..services.llm_service import LLMService
-from ..services.memory_service import MemoryService
-from ..services.embedding_service import EmbeddingService
+from ..services.chat.llm import LLMService
+from ..services.chat.memory import MemoryService
+from ..services.chat.embedding import EmbeddingService
 
 class ChatController:
     def __init__(

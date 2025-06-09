@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import base64
 from io import BytesIO
-from ..services.voice_processor import VoiceProcessor
+from backend.services.processing.voice import VoiceProcessor
 
 router = APIRouter()
 voice_processor = VoiceProcessor()

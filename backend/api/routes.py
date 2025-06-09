@@ -2,7 +2,7 @@ from fastapi import APIRouter
 import asyncpg
 import redis.asyncio as aioredis
 
-from api.rag import router as rag_router
+from backend.api.rag import router as rag_router
 from api.conversation import router as conversation_router
 
 router = APIRouter(prefix="/api")

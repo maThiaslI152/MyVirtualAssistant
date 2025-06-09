@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, UploadFile, File
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, HttpUrl
-from services.web_search_service import WebSearchService
-from services.rag_search_service import RAGSearchService
-from services.cache_service import CacheService
-from services.content_processor import ContentProcessor
-from services.search_history_service import SearchHistoryService
+from backend.services.search.web import WebSearchService
+from backend.services.rag.search import RAGSearchService
+from backend.services.rag.cache import CacheService
+from backend.services.rag.processor import ContentProcessor
+from backend.services.search.history import SearchHistoryService
 from vectorstore.db import get_vector_store
 from config import settings
-from services.file_processor_service import FileProcessorService
+from backend.services.processing.file import FileProcessorService
 import logging
 import os
 from pathlib import Path

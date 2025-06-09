@@ -1,9 +1,9 @@
 from langgraph.graph import StateGraph, END
-from typing import TypedDict, List, Dict, Any
+from typing import TypedDict, List, Dict, Any, Optional
 from .models.chat_model import ChatState, Message
 from .controllers.chat_controller import ChatController
 from .presenters.chat_presenter import ChatPresenter
-from .services.redis_service import RedisService
+from .services.chat.redis import RedisService
 
 class GraphState(TypedDict):
     chat_state: ChatState

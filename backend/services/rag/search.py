@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Optional
-from .web_search_service import WebSearchService
-from .content_processor import ContentProcessor
-from .cache_service import CacheService
+from ..search.web import WebSearchService
+from .processor import ContentProcessor
+from .cache import CacheService
 from core.models.chat_model import Message
 import asyncio
 from datetime import datetime
@@ -15,10 +15,10 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.chat_models import ChatOpenAI
 from langchain.schema import Document
 from langchain.chains.retrieval_qa.base import RetrievalQA
-from .file_processor_service import FileProcessorService
-from chromadb.config import Settings
+from ..processing.file import FileProcessorService
 import os
 import torch
+import chromadb
 
 class RAGSearchService:
     def __init__(
@@ -53,19 +53,25 @@ class RAGSearchService:
             model_kwargs={'device': device}
         )
         
-        # Initialize ChromaDB with correct settings
+        # Initialize ChromaDB client - using HTTP client for Docker setup
+        # Use environment variable or default to localhost
+        chroma_host = os.getenv("CHROMA_HOST", "localhost")
+        chroma_port = int(os.getenv("CHROMA_PORT", "8000"))
+        
+        self.chroma_client = chromadb.HttpClient(
+            host=chroma_host,
+            port=chroma_port,
+            settings=chromadb.config.Settings(
+                anonymized_telemetry=False,
+                allow_reset=True
+            )
+        )
+        
+        # Initialize vector store with the client
         self.vector_store = Chroma(
             collection_name="documents",
             embedding_function=self.embeddings,
-            persist_directory="./data/chroma",
-            client_settings=Settings(
-                chroma_api_impl="rest",
-                chroma_server_host="chroma",
-                chroma_server_http_port=8000,
-                is_persistent=True,
-                allow_reset=True,
-                anonymized_telemetry=False
-            )
+            client=self.chroma_client
         )
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,

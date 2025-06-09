@@ -1,17 +1,19 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends, BackgroundTasks
 from typing import Dict, Any, List, Optional
+from pydantic import BaseModel
 from datetime import datetime
 import json
 import uuid
-from ..core.models.chat_model import Message, ChatResponse
-from ..core.controllers.chat_controller import ChatController
-from ..core.presenters.chat_presenter import ChatPresenter
-from ..core.graph import create_chat_graph, initialize_graph_state
-from ..services.llm_service import LLMService
-from ..services.memory_service import MemoryService
-from ..services.embedding_service import EmbeddingService
-from ..services.redis_service import RedisService
+from backend.core.models.chat_model import Message, ChatResponse
+from backend.core.controllers.chat_controller import ChatController
+from backend.core.presenters.chat_presenter import ChatPresenter
+from backend.core.graph import create_chat_graph, initialize_graph_state
+from backend.services.chat.llm import LLMService
+from backend.services.chat.memory import MemoryService
+from backend.services.chat.embedding import EmbeddingService
+from backend.services.chat.redis import RedisService
 import httpx
+import logging
 
 router = APIRouter()
 

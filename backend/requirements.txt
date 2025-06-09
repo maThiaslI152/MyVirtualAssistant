@@ -98,17 +98,14 @@ langchain-community>=0.0.1
 # Add sentence-transformers package
 sentence-transformers>=2.2.2
 
-# Add chromadb package
-chromadb[httpx]>=0.4.22
+# ChromaDB - stable version
+chromadb>=0.5.15
 
 # LangChain packages
 langchain>=0.1.0
-langchain-chroma>=0.0.1
+langchain-chroma>=0.1.0
 langchain-huggingface>=0.0.1
 langchain-core>=0.1.0
-
-# ChromaDB
-chromadb>=0.4.22
 
 # HuggingFace
 sentence-transformers>=2.2.2

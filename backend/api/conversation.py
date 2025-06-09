@@ -3,9 +3,9 @@ from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 import logging
-from ..services.conversation_service import ConversationService
-from ..services.rag_search_service import RAGSearchService
-from ..services.content_processor import ContentProcessor
+from backend.services.chat.conversation import ConversationService
+from backend.services.rag.search import RAGSearchService
+from backend.services.rag.processor import ContentProcessor
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
